@@ -1270,10 +1270,8 @@ export default defineComponent({
     }
 
     function resetLoadingBar() {
-      pdfAppInstance.value?.loadingBar?.show();
-      if (pdfAppInstance.value?.loadingBar) {
-        pdfAppInstance.value.loadingBar.percent = 0;
-      }
+      pdfApp.PDFViewerApplication.loadingBar?.show();
+      pdfApp.PDFViewerApplication.loadingBar.percent = 0;
     }
 
     watch(() => props.pdf, open);
