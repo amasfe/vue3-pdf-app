@@ -1,138 +1,164 @@
 import { ToolbarIdConfig } from "@/types";
 import { PDF_FILE_INPUT_ID } from "@/utils/constants";
 
-const getEl = document.getElementById.bind(document);
+const getEl = (id: string) => document.getElementById(id);
 
-export default (idConfig: ToolbarIdConfig = {}) => ({
-  appContainer: getEl("pdf"),
-  mainContainer: getEl("viewerContainer"),
-  viewerContainer: getEl("viewer"),
-  eventBus: null,
-  toolbar: {
-    container: getEl("toolbarViewer"),
-    numPages: getEl(idConfig.numPages || "numPages"),
-    pageNumber: getEl(idConfig.pageNumber || "pageNumber"),
-    // TODO make scale select customizable
-    scaleSelectContainer: getEl("scaleSelectContainer"),
-    scaleSelect: getEl("scaleSelect"),
-    customScaleOption: getEl("customScaleOption"),
-    previous: getEl(idConfig.previousPage || "previous"),
-    next: getEl(idConfig.nextPage || "next"),
-    zoomIn: getEl(idConfig.zoomIn || "zoomIn"),
-    zoomOut: getEl(idConfig.zoomOut || "zoomOut"),
-    viewFind: getEl(idConfig.toggleFindbar || "viewFind"),
-    openFile: getEl(idConfig.openFile || "openFile"),
-    print: getEl(idConfig.print || "print"),
-    presentationModeButton: getEl(
-      idConfig.presentationMode || "presentationMode"
-    ),
-    download: getEl(idConfig.download || "download"),
-    viewBookmark: getEl(idConfig.viewBookmark || "viewBookmark")
-  },
-  secondaryToolbar: {
-    toolbar: getEl("secondaryToolbar"),
-    toggleButton: getEl("secondaryToolbarToggle"),
-    toolbarButtonContainer: getEl("secondaryToolbarButtonContainer"),
-    presentationModeButton: getEl("secondaryPresentationMode"),
-    openFileButton: getEl("secondaryOpenFile"),
-    printButton: getEl("secondaryPrint"),
-    downloadButton: getEl("secondaryDownload"),
-    viewBookmarkButton: getEl("secondaryViewBookmark"),
-    firstPageButton: getEl(idConfig.firstPage || "firstPage"),
-    lastPageButton: getEl(idConfig.lastPage || "lastPage"),
-    pageRotateCwButton: getEl(idConfig.pageRotateCw || "pageRotateCw"),
-    pageRotateCcwButton: getEl(idConfig.pageRotateCcw || "pageRotateCcw"),
-    cursorSelectToolButton: getEl(
-      idConfig.cursorSelectTool || "cursorSelectTool"
-    ),
-    cursorHandToolButton: getEl(idConfig.cursorHandTool || "cursorHandTool"),
-    scrollVerticalButton: getEl(idConfig.scrollVertical || "scrollVertical"),
-    scrollHorizontalButton: getEl(
-      idConfig.scrollHorizontal || "scrollHorizontal"
-    ),
-    scrollWrappedButton: getEl(idConfig.scrollWrapped || "scrollWrapped"),
-    spreadNoneButton: getEl(idConfig.spreadNone || "spreadNone"),
-    spreadOddButton: getEl(idConfig.spreadOdd || "spreadOdd"),
-    spreadEvenButton: getEl(idConfig.spreadEven || "spreadEven"),
-    documentPropertiesButton: getEl(
-      idConfig.documentProperties || "documentProperties"
-    )
-  },
-  fullscreen: {
-    contextFirstPage: getEl("contextFirstPage"),
-    contextLastPage: getEl("contextLastPage"),
-    contextPageRotateCw: getEl("contextPageRotateCw"),
-    contextPageRotateCcw: getEl("contextPageRotateCcw")
-  },
-  sidebar: {
-    // Divs (and sidebar button)
-    outerContainer: getEl("outerContainer"),
-    viewerContainer: getEl("viewerContainer"),
-    toggleButton: getEl(idConfig.sidebarToggle || "sidebarToggle"),
-    // Buttons
-    thumbnailButton: getEl(idConfig.viewThumbnail || "viewThumbnail"),
-    outlineButton: getEl(idConfig.viewOutline || "viewOutline"),
-    attachmentsButton: getEl(idConfig.viewAttachments || "viewAttachments"),
-    // Views
-    thumbnailView: getEl("thumbnailView"),
-    outlineView: getEl("outlineView"),
-    attachmentsView: getEl("attachmentsView")
-  },
-  sidebarResizer: {
-    outerContainer: getEl("outerContainer"),
-    resizer: getEl("sidebarResizer")
-  },
-  findBar: {
-    bar: getEl(idConfig.findbar || "findbar"),
-    toggleButton: getEl(idConfig.toggleFindbar || "viewFind"),
-    findField: getEl(idConfig.findInput || "findInput"),
-    highlightAllCheckbox: getEl(
-      idConfig.findHighlightAll || "findHighlightAll"
-    ),
-    caseSensitiveCheckbox: getEl(idConfig.findMatchCase || "findMatchCase"),
-    entireWordCheckbox: getEl(idConfig.findEntireWord || "findEntireWord"),
-    findMsg: getEl(idConfig.findMessage || "findMsg"),
-    findResultsCount: getEl(idConfig.findResultsCount || "findResultsCount"),
-    findPreviousButton: getEl(idConfig.findPrevious || "findPrevious"),
-    findNextButton: getEl(idConfig.findNext || "findNext")
-  },
-  passwordOverlay: {
-    overlayName: "passwordOverlay",
-    container: getEl("passwordOverlay"),
-    label: getEl("passwordText"),
-    input: getEl("password"),
-    submitButton: getEl("passwordSubmit"),
-    cancelButton: getEl("passwordCancel")
-  },
-  documentProperties: {
-    overlayName: "documentPropertiesOverlay",
-    container: getEl("documentPropertiesOverlay"),
-    closeButton: getEl("documentPropertiesClose"),
-    fields: {
-      fileName: getEl("fileNameField"),
-      fileSize: getEl("fileSizeField"),
-      title: getEl("titleField"),
-      author: getEl("authorField"),
-      subject: getEl("subjectField"),
-      keywords: getEl("keywordsField"),
-      creationDate: getEl("creationDateField"),
-      modificationDate: getEl("modificationDateField"),
-      creator: getEl("creatorField"),
-      producer: getEl("producerField"),
-      version: getEl("versionField"),
-      pageCount: getEl("pageCountField"),
-      pageSize: getEl("pageSizeField"),
-      linearized: getEl("linearizedField")
-    }
-  },
-  errorWrapper: {
-    container: getEl("errorWrapper"),
-    errorMessage: getEl("errorMessage"),
-    closeButton: getEl("errorClose"),
-    errorMoreInfo: getEl("errorMoreInfo"),
-    moreInfoButton: getEl("errorShowMore"),
-    lessInfoButton: getEl("errorShowLess")
-  },
-  printContainer: getEl("printContainer"),
-  openFileInputName: PDF_FILE_INPUT_ID
-});
+export default (idConfig: ToolbarIdConfig = {}, instanceId?: string) => {
+  const prefix = instanceId ? `${instanceId}-` : "";
+
+  return {
+    appContainer: getEl(`${prefix}pdf`),
+    mainContainer: getEl(`${prefix}viewerContainer`),
+    viewerContainer: getEl(`${prefix}viewer`),
+    eventBus: null,
+    toolbar: {
+      container: getEl(`${prefix}toolbarViewer`),
+      numPages: getEl(idConfig.numPages || `${prefix}numPages`),
+      pageNumber: getEl(idConfig.pageNumber || `${prefix}pageNumber`),
+      // TODO make scale select customizable
+      scaleSelectContainer: getEl(`${prefix}scaleSelectContainer`),
+      scaleSelect: getEl(`${prefix}scaleSelect`),
+      customScaleOption: getEl(`${prefix}customScaleOption`),
+      previous: getEl(idConfig.previousPage || `${prefix}previous`),
+      next: getEl(idConfig.nextPage || `${prefix}next`),
+      zoomIn: getEl(idConfig.zoomIn || `${prefix}zoomIn`),
+      zoomOut: getEl(idConfig.zoomOut || `${prefix}zoomOut`),
+      viewFind: getEl(idConfig.toggleFindbar || `${prefix}viewFind`),
+      openFile: getEl(idConfig.openFile || `${prefix}openFile`),
+      print: getEl(idConfig.print || `${prefix}print`),
+      presentationModeButton: getEl(
+        idConfig.presentationMode || `${prefix}presentationMode`
+      ),
+      download: getEl(idConfig.download || `${prefix}download`),
+      viewBookmark: getEl(idConfig.viewBookmark || `${prefix}viewBookmark`),
+    },
+    secondaryToolbar: {
+      toolbar: getEl(`${prefix}secondaryToolbar`),
+      toggleButton: getEl(`${prefix}secondaryToolbarToggle`),
+      toolbarButtonContainer: getEl(`${prefix}secondaryToolbarButtonContainer`),
+      presentationModeButton: getEl(`${prefix}secondaryPresentationMode`),
+      openFileButton: getEl(`${prefix}secondaryOpenFile`),
+      printButton: getEl(`${prefix}secondaryPrint`),
+      downloadButton: getEl(`${prefix}secondaryDownload`),
+      viewBookmarkButton: getEl(`${prefix}secondaryViewBookmark`),
+      firstPageButton: getEl(idConfig.firstPage || `${prefix}firstPage`),
+      lastPageButton: getEl(idConfig.lastPage || `${prefix}lastPage`),
+      pageRotateCwButton: getEl(
+        idConfig.pageRotateCw || `${prefix}pageRotateCw`
+      ),
+      pageRotateCcwButton: getEl(
+        idConfig.pageRotateCcw || `${prefix}pageRotateCcw`
+      ),
+      cursorSelectToolButton: getEl(
+        idConfig.cursorSelectTool || `${prefix}cursorSelectTool`
+      ),
+      cursorHandToolButton: getEl(
+        idConfig.cursorHandTool || `${prefix}cursorHandTool`
+      ),
+      scrollVerticalButton: getEl(
+        idConfig.scrollVertical || `${prefix}scrollVertical`
+      ),
+      scrollHorizontalButton: getEl(
+        idConfig.scrollHorizontal || `${prefix}scrollHorizontal`
+      ),
+      scrollWrappedButton: getEl(
+        idConfig.scrollWrapped || `${prefix}scrollWrapped`
+      ),
+      spreadNoneButton: getEl(idConfig.spreadNone || `${prefix}spreadNone`),
+      spreadOddButton: getEl(idConfig.spreadOdd || `${prefix}spreadOdd`),
+      spreadEvenButton: getEl(idConfig.spreadEven || `${prefix}spreadEven`),
+      documentPropertiesButton: getEl(
+        idConfig.documentProperties || `${prefix}documentProperties`
+      ),
+    },
+    fullscreen: {
+      contextFirstPage: getEl(`${prefix}contextFirstPage`),
+      contextLastPage: getEl(`${prefix}contextLastPage`),
+      contextPageRotateCw: getEl(`${prefix}contextPageRotateCw`),
+      contextPageRotateCcw: getEl(`${prefix}contextPageRotateCcw`),
+    },
+    sidebar: {
+      // Divs (and sidebar button)
+      outerContainer: getEl(`${prefix}outerContainer`),
+      viewerContainer: getEl(`${prefix}viewerContainer`),
+      toggleButton: getEl(idConfig.sidebarToggle || `${prefix}sidebarToggle`),
+      // Buttons
+      thumbnailButton: getEl(
+        idConfig.viewThumbnail || `${prefix}viewThumbnail`
+      ),
+      outlineButton: getEl(idConfig.viewOutline || `${prefix}viewOutline`),
+      attachmentsButton: getEl(
+        idConfig.viewAttachments || `${prefix}viewAttachments`
+      ),
+      // Views
+      thumbnailView: getEl(`${prefix}thumbnailView`),
+      outlineView: getEl(`${prefix}outlineView`),
+      attachmentsView: getEl(`${prefix}attachmentsView`),
+    },
+    sidebarResizer: {
+      outerContainer: getEl(`${prefix}outerContainer`),
+      resizer: getEl(`${prefix}sidebarResizer`),
+    },
+    findBar: {
+      bar: getEl(idConfig.findbar || `${prefix}findbar`),
+      toggleButton: getEl(idConfig.toggleFindbar || `${prefix}viewFind`),
+      findField: getEl(idConfig.findInput || `${prefix}findInput`),
+      highlightAllCheckbox: getEl(
+        idConfig.findHighlightAll || `${prefix}findHighlightAll`
+      ),
+      caseSensitiveCheckbox: getEl(
+        idConfig.findMatchCase || `${prefix}findMatchCase`
+      ),
+      entireWordCheckbox: getEl(
+        idConfig.findEntireWord || `${prefix}findEntireWord`
+      ),
+      findMsg: getEl(idConfig.findMessage || `${prefix}findMsg`),
+      findResultsCount: getEl(
+        idConfig.findResultsCount || `${prefix}findResultsCount`
+      ),
+      findPreviousButton: getEl(
+        idConfig.findPrevious || `${prefix}findPrevious`
+      ),
+      findNextButton: getEl(idConfig.findNext || `${prefix}findNext`),
+    },
+    passwordOverlay: {
+      overlayName: "passwordOverlay",
+      container: getEl(`${prefix}passwordOverlay`),
+      label: getEl(`${prefix}passwordText`),
+      input: getEl(`${prefix}password`),
+      submitButton: getEl(`${prefix}passwordSubmit`),
+      cancelButton: getEl(`${prefix}passwordCancel`),
+    },
+    documentProperties: {
+      overlayName: "documentPropertiesOverlay",
+      container: getEl(`${prefix}documentPropertiesOverlay`),
+      closeButton: getEl(`${prefix}documentPropertiesClose`),
+      fields: {
+        fileName: getEl(`${prefix}fileNameField`),
+        fileSize: getEl(`${prefix}fileSizeField`),
+        title: getEl(`${prefix}titleField`),
+        author: getEl(`${prefix}authorField`),
+        subject: getEl(`${prefix}subjectField`),
+        keywords: getEl(`${prefix}keywordsField`),
+        creationDate: getEl(`${prefix}creationDateField`),
+        modificationDate: getEl(`${prefix}modificationDateField`),
+        creator: getEl(`${prefix}creatorField`),
+        producer: getEl(`${prefix}producerField`),
+        version: getEl(`${prefix}versionField`),
+        pageCount: getEl(`${prefix}pageCountField`),
+        pageSize: getEl(`${prefix}pageSizeField`),
+        linearized: getEl(`${prefix}linearizedField`),
+      },
+    },
+    errorWrapper: {
+      container: getEl(`${prefix}errorWrapper`),
+      errorMessage: getEl(`${prefix}errorMessage`),
+      closeButton: getEl(`${prefix}errorClose`),
+      errorMoreInfo: getEl(`${prefix}errorMoreInfo`),
+      moreInfoButton: getEl(`${prefix}errorShowMore`),
+      lessInfoButton: getEl(`${prefix}errorShowLess`),
+    },
+    printContainer: getEl(`${prefix}printContainer`),
+    openFileInputName: PDF_FILE_INPUT_ID,
+  };
+};
