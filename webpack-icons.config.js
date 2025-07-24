@@ -1,24 +1,28 @@
-const path = require('path')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-  entry: './src/sass/icons.scss',
-  mode: 'production',
+  entry: "./src/sass/icons.scss",
+  mode: "production",
   output: {
-    path: path.resolve(__dirname, 'dist/icons')
+    path: path.resolve(__dirname, "dist/icons"),
   },
   module: {
     rules: [
       {
         test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf|svg)$/i,
-        type: 'asset/resource',
-        dependency: { not: ['url'] }
-      }
-    ]
+        type: "asset/resource",
+        dependency: { not: ["url"] },
+      },
+    ],
   },
-  plugins: [new MiniCssExtractPlugin()]
-}
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "main.css",
+    }),
+  ],
+};

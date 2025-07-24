@@ -2,15 +2,26 @@
   "name": "vue3-pdf-app",
   "version": "1.0.3",
   "description": "Vue 3 PDF viewer",
-  "main": "dist/vue3-pdf-app.umd.js",
-  "unpkg": "dist/vue3-pdf-app.umd.min.js",
+  "main": "./dist/vue3-pdf-app.umd.js",
+  "module": "./dist/vue3-pdf-app.common.js",
+  "unpkg": "./dist/vue3-pdf-app.umd.min.js",
   "types": "./dist/types/components/pdf-viewer.vue.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/vue3-pdf-app.common.js",
+      "require": "./dist/vue3-pdf-app.umd.js",
+      "types": "./dist/types/components/pdf-viewer.vue.d.ts"
+    },
+    "./dist/icons/main.css": "./dist/icons/main.css",
+    "./dist/icons/*": "./dist/icons/*"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stellR42/vue3-pdf-app"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/components/pdf-viewer.vue"
   ],
   "keywords": [
     "vue",
@@ -32,6 +43,8 @@
     "build:icons": "webpack --config webpack-icons.config.js",
     "build:types": "vue-tsc --build tsconfig.lib.json",
     "build:npm": "npm run build:lib & npm run build:icons",
+    "prepublishOnly": "npm run build:npm",
+    "postinstall": "npm run build:npm",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {},
