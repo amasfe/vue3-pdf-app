@@ -1,20 +1,15 @@
 <template>
-  <div :id="instanceId" :class="[localTheme]" class="pdf-app">
+  <div id="vuePdfApp" :class="[localTheme]" class="pdf-app">
     <component :is="'script'" type="application/l10n">
       {{ defaultLocale }}
     </component>
-    <div :id="`${instanceId}-outerContainer`" class="outerContainer">
+    <div id="outerContainer">
       <div
         v-show="showElem('sidebar')"
         :class="[isToolbarHidden]"
-        :id="`${instanceId}-sidebarContainer`"
-        class="sidebarContainer"
+        id="sidebarContainer"
       >
-        <div
-          v-show="!isSidebarToolbarHidden"
-          :id="`${instanceId}-toolbarSidebar`"
-          class="toolbarSidebar"
-        >
+        <div v-show="!isSidebarToolbarHidden" id="toolbarSidebar">
           <slot v-bind="slotProps" name="toolbar-sidebar-prepend"></slot>
           <div class="splitToolbarButton toggled">
             <button
@@ -801,7 +796,7 @@
             </div>
           </div>
         </div>
-        <div :id="`${instanceId}-loadingBar`" class="loadingBar">
+        <div id="loadingBar">
           <div class="progress">
             <div class="glimmer"></div>
           </div>
@@ -967,7 +962,7 @@
           </div>
         </div>
         <!--#if !MOZCENTRAL-->
-        <div :id="`${instanceId}-printServiceOverlay`" class="container hidden">
+        <div id="printServiceOverlay" class="container hidden">
           <div class="dialog">
             <div class="row">
               <span data-l10n-id="print_progress_message"
@@ -984,7 +979,7 @@
               >
             </div>
             <div class="buttonRow">
-              <button :id="`${instanceId}-printCancel`" class="overlayButton">
+              <button id="printCancel" class="overlayButton">
                 <span data-l10n-id="print_progress_close">Cancel</span>
               </button>
             </div>
@@ -1051,28 +1046,15 @@ export default defineComponent({
     idConfig: { type: Object as PropType<ToolbarIdConfig> },
     pageScale: [Number, String] as PropType<PageScale>,
     pageNumber: Number,
-    instanceId: {
-      type: String,
-      default: () =>
-        `pdf-viewer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    },
   },
   setup(props, ctx) {
-    const defaultLocale = ref(
-      JSON.stringify({
-        locales: {
-          "en-us": locale,
-        },
-        default_locale: "en-us",
-      })
-    );
+    const defaultLocale = ref(JSON.stringify(locale));
     const isOpenHandlerBinded = ref(false);
     const isSidebarHidden = ref(true);
     const isFindbarHidden = ref(true);
     const cacheTheme = ref(
       window.localStorage.getItem(themeCacheKey) as Theme | null
     );
-    const pdfAppInstance = ref<any>(null);
 
     const isSidebarToolbarHidden = computed(() => {
       const idConfig = props.idConfig as ToolbarIdConfig;
@@ -1108,7 +1090,6 @@ export default defineComponent({
     const findbarButtonUnmount = ref<Function>();
     const fileInputUnmount = ref<Function>();
     const printContainerUnmount = ref<Function>();
-
     onBeforeUnmount(() => {
       destroyPdf();
       if (toggleButtonUnmount.value) {
@@ -1126,26 +1107,21 @@ export default defineComponent({
     });
 
     window.print = pdfPrint;
+    pdfApp.PDFViewerApplication.isViewerEmbedded = !props.title;
     ctx.emit("after-created", pdfApp.PDFViewerApplication);
 
     onMounted(() => {
       addPrintContainer();
       const config = getAppConfig(props.idConfig);
-
-      // 創建實例特定的 PDFViewerApplication
-      pdfAppInstance.value = {
-        ...pdfApp.PDFViewerApplication,
-        isViewerEmbedded: !props.title,
-        instanceId: props.instanceId,
-      };
-
-      pdfAppInstance.value.run(config);
-      pdfAppInstance.value.initializedPromise
-        .then(() => setDefaultPageScale())
-        .then(() => open())
-        .then(() => bindSidebarToggleEvents())
-        .then(() => bindFindbarToggleEvents())
-        .catch(errorHandler);
+      if (pdfApp.PDFViewerApplication) {
+        pdfApp.PDFViewerApplication.run(config);
+        pdfApp.PDFViewerApplication.initializedPromise
+          .then(setDefaultPageScale)
+          .then(open)
+          .then(bindSidebarToggleEvents)
+          .then(bindFindbarToggleEvents)
+          .catch(errorHandler);
+      }
     });
 
     function bindSidebarToggleEvents() {
@@ -1163,14 +1139,14 @@ export default defineComponent({
       const handler = checkFindbarVisibility;
       toggleButton?.addEventListener("click", handler);
       findbarButtonUnmount.value = () => {
-        toggleButton?.removeEventListener("change", handler);
+        toggleButton?.removeEventListener("click", handler);
       };
     }
     function bindOpenHandler() {
       if (isOpenHandlerBinded.value) return;
       const fileInput = document.getElementById(PDF_FILE_INPUT_ID);
       const fileInputHandler = async () => {
-        await pdfAppInstance.value?.pdfLoadingTask?.promise;
+        await pdfApp.PDFViewerApplication.pdfLoadingTask?.promise;
         openDocument();
       };
       fileInput?.addEventListener("change", fileInputHandler);
@@ -1181,27 +1157,24 @@ export default defineComponent({
     }
     function open() {
       clearCacheTimeout();
-      if (!pdfAppInstance.value) return;
+      if (!pdfApp.PDFViewerApplication) return;
       if (!props.pdf) {
-        pdfAppInstance.value.close();
+        pdfApp.PDFViewerApplication.close();
       } else {
-        pdfAppInstance.value
-          .open(props.pdf)
+        pdfApp.PDFViewerApplication.open(props.pdf)
           .then(() => {
-            if (props.pageNumber && pdfAppInstance.value) {
-              setTimeout(() => {
-                if (pdfAppInstance.value) {
-                  pdfAppInstance.value.page = props.pageNumber;
-                }
-              });
+            if (props.pageNumber) {
+              setTimeout(
+                () => (pdfApp.PDFViewerApplication.page = props.pageNumber)
+              );
             }
-            return pdfAppInstance.value.pdfDocument?.getMetadata();
+            return pdfApp.PDFViewerApplication.pdfDocument?.getMetadata();
           })
           .then(
             (fileMetadata: { contentDispositionFilename: null | string }) => {
-              pdfAppInstance.value.contentDispositionFilename =
+              pdfApp.PDFViewerApplication.contentDispositionFilename =
                 props.fileName || fileMetadata.contentDispositionFilename;
-              ctx.emit("pages-rendered", pdfAppInstance.value);
+              ctx.emit("pages-rendered", pdfApp.PDFViewerApplication);
             }
           )
           .catch(errorHandler);
@@ -1209,33 +1182,33 @@ export default defineComponent({
     }
 
     function checkSidebarVisibility() {
-      const sidebar = pdfAppInstance.value?.pdfSidebar;
+      const sidebar = pdfApp.PDFViewerApplication?.pdfSidebar;
       isSidebarHidden.value = !(sidebar && sidebar.isOpen);
     }
     function checkFindbarVisibility() {
-      const findbar = pdfAppInstance.value?.findBar;
+      const findbar = pdfApp.PDFViewerApplication?.findBar;
       isFindbarHidden.value = !(findbar && findbar.opened);
     }
     async function openDocument() {
       resetLoadingBar();
-      ctx.emit("open", pdfAppInstance.value);
-      if (pdfAppInstance.value?.pdfViewer?.pagesPromise) {
-        await pdfAppInstance.value.pdfViewer.pagesPromise.catch(errorHandler);
-        if (props.pageNumber && pdfAppInstance.value) {
-          setTimeout(() => {
-            if (pdfAppInstance.value) {
-              pdfAppInstance.value.page = props.pageNumber;
-            }
-          });
+      ctx.emit("open", pdfApp.PDFViewerApplication);
+      if (pdfApp.PDFViewerApplication?.pdfViewer?.pagesPromise) {
+        await pdfApp.PDFViewerApplication.pdfViewer.pagesPromise.catch(
+          errorHandler
+        );
+        if (props.pageNumber) {
+          setTimeout(
+            () => (pdfApp.PDFViewerApplication.page = props.pageNumber)
+          );
         }
         checkSidebarVisibility();
         checkFindbarVisibility();
-        ctx.emit("pages-rendered", pdfAppInstance.value);
+        ctx.emit("pages-rendered", pdfApp.PDFViewerApplication);
       }
     }
 
     function addPrintContainer() {
-      const printElId = `printContainer-${props.instanceId}`;
+      const printElId = "printContainer";
       const el = document.createElement("div");
       el.id = printElId;
       document.body.appendChild(el);
@@ -1243,10 +1216,10 @@ export default defineComponent({
       styleEl.type = "text/css";
       styleEl.innerHTML = `
         @media print {
-          body > *:not(#${printElId}) {
+          body > *:not(#printContainer) {
             display: none !important;
-          }
-        }`;
+        }
+      }`;
       document.head.appendChild(styleEl);
       printContainerUnmount.value = () => {
         document.body.removeChild(el);
@@ -1255,9 +1228,9 @@ export default defineComponent({
     }
     function destroyPdf(): void {
       clearCacheTimeout();
-      pdfAppInstance.value?.unbindEvents();
-      pdfAppInstance.value?.unbindWindowEvents();
-      pdfAppInstance.value?.pdfDocument?.destroy();
+      pdfApp.PDFViewerApplication.unbindEvents();
+      pdfApp.PDFViewerApplication.unbindWindowEvents();
+      pdfApp.PDFViewerApplication.pdfDocument?.destroy();
       const el = document.getElementById(PDF_FILE_INPUT_ID);
       el && el.remove();
       // __nativePrint__ is assigned in pdf_print_service.js
@@ -1273,7 +1246,7 @@ export default defineComponent({
 
     function clearCacheTimeout() {
       const cacheTimeoutId =
-        pdfAppInstance.value?.pdfRenderingQueue?.idleTimeout;
+        pdfApp.PDFViewerApplication.pdfRenderingQueue?.idleTimeout;
       clearTimeout(cacheTimeoutId);
     }
     function getScale(value: number): string {
@@ -1306,17 +1279,14 @@ export default defineComponent({
     watch(() => props.pdf, open);
 
     return {
-      isSidebarHidden,
-      isFindbarHidden,
-      isSidebarToolbarHidden,
-      isToolbarHidden,
-      localTheme,
-      defaultLocale,
-      bindOpenHandler,
       showElem,
       getScale,
       slotProps,
-      toggleTheme,
+      isToolbarHidden,
+      isSidebarToolbarHidden,
+      localTheme,
+      defaultLocale,
+      bindOpenHandler,
     };
   },
 });
